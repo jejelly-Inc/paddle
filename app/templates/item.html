@@ -1,0 +1,46 @@
+<html>
+
+<head>
+    <title>Subcription Details</title>
+    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <h1>Plans</h1>
+    <section>
+        <p class="title">Pricing Plans</p>
+        <div class="columns">
+            <div class="column">
+                <p class="subtitle">{{ plan.name }}</p>
+                <div>
+                    <p class="heading"> Billing Type: USD{{price[0]}} per {{ plan.billing_type }}</p>
+                    <p> Trial Days: {{ plan.trial_days }}</p>
+                </div>
+            </div>
+            <a href="#!" id={{plan.id}} onclick="openCheckout('{{plan.id}}')">Buy now!</a>
+        </div>
+    </section>
+
+    <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+
+    <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+    <script type="text/javascript">
+        Paddle.Environment.set('sandbox');
+        Paddle.Setup({ vendor: 6397 });
+        function openCheckout(plan_id) {
+
+            Paddle.Checkout.open({
+                product: plan_id,
+
+            });
+        }
+        // document.getElementById('buy').addEventListener('click', openCheckout, false);
+
+
+    </script>
+
+
+
+</body>
+
+</html>
