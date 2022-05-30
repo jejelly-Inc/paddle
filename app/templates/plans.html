@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <title>Subcription Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container mb-5 mt-5">
+        <div class="pricing card-deck flex-column flex-md-row mb-3">
+            {%for plan in plans%}
+            <div class="card card-pricing text-center px-3 mb-4">
+                <span class="h6 w-60 mx-auto px-4 py-1 rounded-bottom bg-primary text-white shadow-sm">{{ plan.name
+                    }}</span>
+                <div class="bg-transparent card-header pt-4 border-0">
+                    <h1 class="h1 font-weight-normal text-primary text-center mb-0" data-pricing-value="15">USD<span
+                            class="price">{{ prices[plan.id] }}</span><span class="h6 text-muted ml-2">/ {{
+                            plan.billing_type }}</span></h1>
+                </div>
+                <div class="card-body pt-0">
+                    <ul class="list-unstyled mb-4">
+                        <li>Up to 5 users</li>
+                        <li>Basic support</li>
+                        <li>Monthly updates</li>
+                        <li>Free cancelation</li>
+                    </ul>
+                    <a href="javascript:void()" class="btn btn-outline-secondary mb-3 hvr" id={{plan.id}}
+                        onclick="openCheckout('{{plan.id}}')">Buy now!</a>
+                </div>
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+
+    <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+    <script type="text/javascript">
+        Paddle.Environment.set('sandbox');
+        Paddle.Setup({ vendor: 6397 });
+        function openCheckout(plan_id) {
+
+            Paddle.Checkout.open({
+                product: plan_id,
+
+            });
+        }
+    // document.getElementById('buy').addEventListener('click', openCheckout, false);
+
+
+    </script>

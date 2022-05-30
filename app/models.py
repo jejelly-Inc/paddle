@@ -52,7 +52,7 @@ class User(Base):
                      nullable=True)
     username = Column(String, unique=True, nullable=False)
     first_name = Column(String(100), nullable=False)
-    middle_name = Column(String(100))
+    middle_name = Column(String(100), nullable=True)
     last_name = Column(String(100), nullable=False)
     email = Column(String, nullable=False, unique=True, index=True)
     password = Column(String, nullable=False)
@@ -137,34 +137,6 @@ class Usage_Information(Base):
     plan_id = Column(Integer, nullable=False)
     subscription_id = Column(Integer, nullable=False)
     current_data = Column(Integer)
+    extra_charges = Column(Float)
     user_id = Column(Integer,
                      nullable=False)
-
-# class Last_Payment(Base):
-#     __tablename__ = 'last_payment'
-#     id = Column(Integer, primary_key=True, autoincrement=True,
-#                 nullable=False, index=True)
-#     amount = Column(Float, nullable=False)
-#     currency = Column(String, nullable=False)
-#     date = Column(DATE(),
-#                   nullable=False)
-
-
-# class Next_Payment(Base):
-#     __tablename__ = 'next_payment'
-#     id = Column(Integer, primary_key=True, autoincrement=True,
-#                 nullable=False, index=True)
-#     amount = Column(Float, nullable=False)
-#     currency = Column(String, nullable=False)
-#     date = Column(DATE(),
-#                   nullable=False)
-
-
-# class Payment_Information(Base):
-#     __tablename__ = 'payment_information'
-#     id = Column(Integer, primary_key=True, autoincrement=True,
-#                 nullable=False, index=True)
-#     payment_method = Column(String, nullable=False)
-#     card_type = Column(String, nullable=False)
-#     last_four_digits = Column(String, nullable=False)
-#     expiry_date = Column(String, nullable=False)

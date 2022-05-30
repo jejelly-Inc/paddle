@@ -7,24 +7,24 @@ T = TypeVar('T')
 
 
 class UserBase(BaseModel):
-    username: Optional[str]
-    first_name: Optional[str]
+    username: str
+    first_name: str
     middle_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    password: Optional[str]
+    last_name: str
+    email: str
+    password: str
 
     class Config:
         orm_mode = True
 
 
-class UserCreate(UserBase):
-    username: Optional[str]
-    first_name: Optional[str]
+class UserCreate(BaseModel):
+    username: str
+    first_name: str
     middle_name: Optional[str]
-    last_name: Optional[str]
-    email: Optional[str]
-    password: Optional[str]
+    last_name: str
+    email: str
+    password: str
 
     class Config:
         orm_mode = True
@@ -67,6 +67,7 @@ class UsageOut(BaseModel):
     subscription_id: Optional[int]
     user_id: Optional[int]
     plan_id: Optional[int]
+    extra_charges: Optional[int]
 
     class Config:
         orm_mode = True
