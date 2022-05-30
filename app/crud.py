@@ -1,5 +1,5 @@
 
-from urllib import response
+from utils import check_possible_payment
 from models import Plan, Price, User, Subscribers, Usage_Information
 from sqlalchemy.orm import Session
 from schemas import GetUsage, UpdateUsage, UserCreate
@@ -159,6 +159,7 @@ def obtain_charges(db: Session, usage: GetUsage):
                                                     user.id, Usage_Information.user_id == user.user_id).first()
     initial = usage_info.initial_data
     current = usage_info.current_data
+    extra_charges = usage_info.extra_charges
     if current < initial:
         return {"response": "Still under subscription!"}
 
@@ -167,15 +168,34 @@ def obtain_charges(db: Session, usage: GetUsage):
     dif = current - initial
     """Assuming 1 gig willl cost 0.1 USD"""
     amount = 0.1 * dif
-    charge_data['amount'] = amount
-    charge_data['charge_name'] = f"Extra {dif} data consumed, cost {amount}"
-
+    new_charges = extra_charges + amount
+    print(
+        f"........................new charge {new_charges}   {extra_charges}  {amount}...............")
+    if new_charges > 1:
+        upcoming_charges, persisting_charges = check_possible_payment(
+            extra_charges, amount)
+        charge_data['amount'] = upcoming_charges
+        charge_data[
+            'charge_name'] = f"Data consumed, cost after exhausting plan is: {upcoming_charges}"
+        print(f"..........................{charge_data}...............")
+        result = paddle_client.create_one_off_charge(**charge_data)
+        db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
+            {Usage_Information.extra_charges: persisting_charges}, synchronize_session='evaluate')
+        db.commit()
+        return result
     try:
+        charge_data['amount'] = amount
+        charge_data[
+            'charge_name'] = f"Data consumed, cost after exhausting plan is: {amount}"
         result = paddle_client.create_one_off_charge(**charge_data)
         return result
     except PaddleException:
-        new_charges = usage_info.extra_charges + amount
+        new_charge = round(usage_info.extra_charges + amount, 2)
         db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
             {Usage_Information.extra_charges: new_charges}, synchronize_session='evaluate')
         db.commit()
-        return f"User has Exhausted subcription plan but under minimum extra charges USD {new_charges}  new Chrages!"
+        return f"User has Exhausted subcription plan but under minimum extra charges USD {new_charge} "
+
+
+# ans = check_possible_payment(0.1, 1.0)
+# print(ans)

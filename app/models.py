@@ -137,6 +137,6 @@ class Usage_Information(Base):
     plan_id = Column(Integer, nullable=False)
     subscription_id = Column(Integer, nullable=False)
     current_data = Column(Integer)
-    extra_charges = Column(Float)
+    extra_charges = Column(Float(precision=2))
     user_id = Column(Integer,
                      nullable=False)

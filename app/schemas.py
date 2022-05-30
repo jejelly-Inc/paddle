@@ -67,7 +67,7 @@ class UsageOut(BaseModel):
     subscription_id: Optional[int]
     user_id: Optional[int]
     plan_id: Optional[int]
-    extra_charges: Optional[int]
+    extra_charges: Optional[float]
 
     class Config:
         orm_mode = True
