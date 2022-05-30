@@ -40,13 +40,12 @@ def get_db():
 @router.get("/plans", response_class=HTMLResponse)
 async def read_item(request: Request, db: Session = Depends(get_db)):
     plans = db.query(models.Plan).all()
-    prices = []
+    prices = {}
     for plan in plans:
         price = db.query(models.Price).filter(
             models.Price.plan_id == plan.id, models.Price.recurring == True).first()
-        prices.append(price.quantity)
-
-    return templates.TemplateResponse("item.html", {"request": request, "plan": plans[0], 'price': prices})
+        prices[plan.id] = price.quantity
+    return templates.TemplateResponse("item.html", {"request": request, "plans": plans, "prices": prices})
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=UserOut)
@@ -93,7 +92,7 @@ async def synchronize_plan(db: Session = Depends(get_db)):
                                  recurring=True, plan_id=plan.id, plan=plan)
             db.add(price)
             db.commit()
-    return {'response': "success", 'subscribers': plans}
+    return {'response': "success", 'subscription_plans': plans}
 
 
 @router.get("/synchronize_subscribers", status_code=status.HTTP_201_CREATED)

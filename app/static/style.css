@@ -1,3 +1,23 @@
-h1 {
-    color: green;
+body{
+    background-color: #E0E0E0;
 }
+.card-pricing.popular {
+              z-index: 1;
+              border: 1px solid #007bff;
+          }
+          .card-pricing .list-unstyled li {
+              padding: .5rem 0;
+              color: #6c757d;
+              /* font-weight: 100; */
+          }
+
+          .btn{
+              border-radius: 1px;
+              font-weight:300;
+          }
+          .hvr:hover{
+
+              color: #fff;
+              background-color: #007bff;
+              border: 1px solid #007bff !important;
+          } 
