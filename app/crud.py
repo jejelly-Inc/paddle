@@ -6,6 +6,7 @@ from schemas import GetUsage, UpdateUsage, UserCreate
 from dotenv import load_dotenv
 import os
 from paddle import PaddleClient, PaddleException
+
 # from schemas import PlanCreate
 load_dotenv()  # take environment variables from .env.
 
@@ -169,20 +170,21 @@ def obtain_charges(db: Session, usage: GetUsage):
     """Assuming 1 gig willl cost 0.1 USD"""
     amount = 0.1 * dif
     new_charges = extra_charges + amount
-    print(
-        f"........................new charge {new_charges}   {extra_charges}  {amount}...............")
+
     if new_charges > 1:
         upcoming_charges, persisting_charges = check_possible_payment(
             extra_charges, amount)
         charge_data['amount'] = upcoming_charges
         charge_data[
             'charge_name'] = f"Data consumed, cost after exhausting plan is: {upcoming_charges}"
-        print(f"..........................{charge_data}...............")
-        result = paddle_client.create_one_off_charge(**charge_data)
-        db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
-            {Usage_Information.extra_charges: persisting_charges}, synchronize_session='evaluate')
-        db.commit()
-        return result
+        try:
+            result = paddle_client.create_one_off_charge(**charge_data)
+            db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
+                {Usage_Information.extra_charges: persisting_charges}, synchronize_session='evaluate')
+            db.commit()
+            return result
+        except PaddleException:
+            return "Rate limit exceeded please try again in some few minutes."
     try:
         charge_data['amount'] = amount
         charge_data[

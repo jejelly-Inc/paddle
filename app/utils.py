@@ -1,3 +1,5 @@
+from math import floor
+
 
 def check_possible_payment(extra, new):
     total = extra + new
