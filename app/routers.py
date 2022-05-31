@@ -1,5 +1,5 @@
 from crud import (get_plans_from_db, obtain_charges, register_new_user,
-                  synchronize_plan_data, synchronize_subcribers, update_cpu_usage, verify_subsribed_users)
+                  synchronize_plan_data, synchronize_subcribers, update_cpu_usage, verify_subscribed_users)
 from database import SessionLocal, engine
 from fastapi import Depends, APIRouter, status
 from sqlalchemy.orm import Session
@@ -61,7 +61,7 @@ async def synchronize_subscribers_from_paddle_to_Custom_DB(db: Session = Depends
 @router.get("/load_data_info", status_code=status.HTTP_201_CREATED)
 async def verify_load_data_usage(db: Session = Depends(get_db)):
     """Verify a subscribed user in data base and load payment and data usage Information"""
-    res = verify_subsribed_users(db)
+    res = verify_subscribed_users(db)
     return {'response': res}
 
 

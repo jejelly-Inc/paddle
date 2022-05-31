@@ -113,31 +113,37 @@ def synchronize_subcribers(db: Session):
     return data
 
 
-def verify_subsribed_users(db: Session):
+def verify_subscribed_users(db: Session):
     """Verify  and Load(put a subcribed user_id in it user table and set under_plan = True) a subscribed user in data base and load payment data usage Information"""
     subscribers = db.query(Subscribers).all()
+    users = db.query(User).all()
     db.query(Usage_Information).delete()
-    for subscriber in subscribers:
-        user = db.query(User).filter(User.email == subscriber.user_email).update(
-            {User.user_id: subscriber.user_id, User.under_plan: True}, synchronize_session='evaluate')
-        # db.add(user)
-        user = db.query(User).filter(
-            User.email == subscriber.user_email).first()
-        db.commit()
-        data = {}
-        data['user_id'] = user.user_id
-        data['model_user_id'] = user.id
-        data['initial_data'] = 200
-        data['current_data'] = 0
-        data['extra_charges'] = 0
-        data['subscription_id'] = subscriber.id
-        data['plan_id'] = subscriber.plan_id
-        data_info = Usage_Information(**data)
-        db.add(data_info)
-        db.commit()
+    user_emails = [user.email for user in users]
+    try:
+        for subscriber in subscribers:
+            if subscriber.user_email in user_emails:
+                user = db.query(User).filter(User.email == subscriber.user_email).update(
+                    {User.user_id: subscriber.user_id, User.under_plan: True}, synchronize_session='evaluate')
+                # db.add(user)
+                db.commit()
+                user = db.query(User).filter(
+                    User.email == subscriber.user_email).first()
+                db.commit()
+                data = {}
+                data['user_id'] = user.user_id
+                data['model_user_id'] = user.id
+                data['initial_data'] = 200
+                data['current_data'] = 0
+                data['extra_charges'] = 0
+                data['subscription_id'] = subscriber.id
+                data['plan_id'] = subscriber.plan_id
+                data_info = Usage_Information(**data)
+                db.add(data_info)
+                db.commit()
 
         return "success"
-    return 'No data to load'
+    except:
+        return "An error Occured!"
 
 
 def update_cpu_usage(db: Session, usage: UpdateUsage):
@@ -176,19 +182,19 @@ def obtain_charges(db: Session, usage: GetUsage):
             extra_charges, amount)
         charge_data['amount'] = upcoming_charges
         charge_data[
-            'charge_name'] = f"Data consumed, cost after exhausting plan is: {upcoming_charges}"
-        try:
-            result = paddle_client.create_one_off_charge(**charge_data)
-            db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
-                {Usage_Information.extra_charges: persisting_charges}, synchronize_session='evaluate')
-            db.commit()
-            return result
-        except PaddleException:
-            return "Rate limit exceeded please try again in some few minutes."
+            'charge_name'] = f"Cost after exhausting plan is: USD ${upcoming_charges}"
+        # try:
+        result = paddle_client.create_one_off_charge(**charge_data)
+        db.query(Usage_Information).filter(Usage_Information.user_id == usage_info.user_id).update(
+            {Usage_Information.extra_charges: persisting_charges}, synchronize_session='evaluate')
+        db.commit()
+        return result
+        # except PaddleException:
+        #     return "Rate limit exceeded please try again in some few minutes."
     try:
         charge_data['amount'] = amount
         charge_data[
-            'charge_name'] = f"Data consumed, cost after exhausting plan is: {amount}"
+            'charge_name'] = f"Data consumed, cost after exhausting plan is: USD ${amount}"
         result = paddle_client.create_one_off_charge(**charge_data)
         return result
     except PaddleException:
